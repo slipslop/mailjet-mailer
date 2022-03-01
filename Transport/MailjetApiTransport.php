@@ -86,13 +86,13 @@ class MailjetApiTransport extends AbstractApiTransport
             throw new HttpTransportException('Could not reach the remote Mailjet server.', $response, 0, $e);
         }
 
-        if (200 !== $statusCode) {
-            throw new HttpTransportException('Unable to send an email: '.$result['Message'].sprintf(' (code %d).', $statusCode), $response);
-        }
-
         // The response needs to contains a 'Messages' key that is an array
         if (!\array_key_exists('Messages', $result) || !\is_array($result['Messages']) || 0 === \count($result['Messages'])) {
             throw new HttpTransportException(sprintf('Unable to send an email: "%s" malformed api response.', $response->getContent(false)), $response);
+        }
+        
+        if (200 !== $statusCode) {
+            throw new HttpTransportException('Unable to send an email: '.$result['Message'].sprintf(' (code %d).', $statusCode), $response);
         }
 
         $sentMessage->setMessageId($response->getHeaders(false)['x-mj-request-guid'][0]);
